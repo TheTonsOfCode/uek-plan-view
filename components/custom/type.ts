@@ -54,8 +54,6 @@ export function parseStudyWeeks(data: string): StudyWeek[] {
     now.setDate(now.getDate() + 7);
     const {startDate: nextWeekStartDate } = getWeekSpanDates(now);
 
-    let past = true;
-
     let currentStudyWeek: StudyWeek | undefined;
 
     for (const row of rows) {
@@ -76,17 +74,42 @@ export function parseStudyWeeks(data: string): StudyWeek[] {
         } = getWeekSpanDates(new Date(lessonDate))
 
         if (!currentStudyWeek || currentStudyWeek.startDate != startDate) {
+            if (studyWeeks.length > 0) {
+                const chkDate = new Date(lessonDate);
+                const swFrees = [];
+                while(true) {
+                    chkDate.setDate(chkDate.getDate() - 7);
+                    const {
+                        startDate: csd,
+                        endDate: ced
+                    } = getWeekSpanDates(new Date(chkDate))
+                    if (studyWeeks.find(sw => sw.startDate === csd)) {
+                        break;
+                    }
+                    let name = 'Wolny tydzień';
+                    if (csd === nowWeekStartDate) {
+                        name += ' [Ten tydzień]';
+                    }
+                    if (csd === nextWeekStartDate) {
+                        name += ' [Następny tydzień]';
+                    }
+                    currentStudyWeek = {startDate: csd, endDate: ced, name, datesLessons: new Map(), past: new Date(csd) < new Date(nowWeekStartDate)};
+                    swFrees.push(currentStudyWeek);
+                }
+                swFrees.reverse();
+                studyWeeks.push(...swFrees);
+            }
+
             // Start of a new study week
             let name = `Tydzień (${studyWeeks.length + 1})`;
             if (startDate === nowWeekStartDate) {
                 name += ' [Ten tydzień]';
-                past = false;
             }
             if (startDate === nextWeekStartDate) {
                 name += ' [Następny tydzień]';
             }
-
-            currentStudyWeek = {startDate, endDate, name, datesLessons: new Map(), past };
+            console.log(new Date(startDate) < new Date(nowWeekStartDate));
+            currentStudyWeek = {startDate, endDate, name, datesLessons: new Map(), past: new Date(startDate) < new Date(nowWeekStartDate) };
             studyWeeks.push(currentStudyWeek);
         }
 

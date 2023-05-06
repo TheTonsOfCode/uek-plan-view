@@ -93,7 +93,7 @@ export const CustomTable = (props: Props) => {
         return <div className='flex flex-col gap-2'>
             <div className={clsx(
                 'border w-full p-2 flex flex-col sm:flex-row items-center gap-4',
-                w.past ? 'bg-gray-500' : 'bg-green-200'
+                w.past ? 'bg-gray-500' : !!Object.keys(w.datesLessons).length ? 'bg-green-200' : 'bg-blue-200'
             )}>
                 <div className='text-xs font-mono'>
                     {w.startDate} - {w.endDate}
@@ -104,6 +104,9 @@ export const CustomTable = (props: Props) => {
             </div>
             <div className='flex gap-4 flex-wrap'>
                 {Object.keys(w.datesLessons).map(date => <StudyDay date={date} lessons={w.datesLessons[date]} key={date}/>)}
+                {!Object.keys(w.datesLessons).length && <div className='text-xs mx-8 my-14 text-gray-500'>
+                    Brak zajęć w tym tygodniu
+                </div>}
             </div>
         </div>
     }
@@ -112,6 +115,6 @@ export const CustomTable = (props: Props) => {
         {!showPast && <div className='border p-2 flex justify-center cursor-pointer font-semibold bg-gray-50' onClick={() => setShowPast(true)}>
             Pokaż przeszłe tygodnie
         </div>}
-        {studyWeeks?.map(w => <StudyWeek w={w} key={w.name}/>)}
+        {studyWeeks?.map((w, wi) => <StudyWeek w={w} key={w.name + wi + w.startDate + w.endDate}/>)}
     </div>;
 }

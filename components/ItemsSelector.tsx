@@ -13,7 +13,7 @@ export const ItemsSelector = (props: Props) => {
 
     const Item = ({item}: {item: string}) => {
         return <div
-            className='cursor-pointer border border-gray-700 overflow-hidden h-12 text-xs font-bold bg-white flex items-center gap-2'
+            className='cursor-pointer border border-gray-700 overflow-hidden h-12 text-xs font-bold bg-white flex items-center gap-2 pr-2'
             onClick={() => {
                 let si = selectedItems;
                 if (selectedItems.includes(item)) {

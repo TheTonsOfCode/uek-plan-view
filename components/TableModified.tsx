@@ -3,6 +3,7 @@ import {replaceStyle} from "@/components/style";
 import {ItemsSelector} from "@/components/ItemsSelector";
 import {parseStudyWeeks} from "@/components/custom/type";
 import {CustomTable} from "@/components/custom/CustomTable";
+import {FaSpinner} from "react-icons/fa";
 
 interface Props {
     URL: string;
@@ -51,6 +52,10 @@ export const TableModified = (props: Props) => {
 
     return <>
         <div id='modify-canvas'/>
+
+        {!items.length && <div className='my-20 flex items-center gap-4'>
+            <FaSpinner className='animate-spin text-2xl'/> Ładowanie...
+        </div>}
 
         <ItemsSelector items={items} selectedItems={selectedItems} setSelectedItems={setSelectedItems}/>
 
