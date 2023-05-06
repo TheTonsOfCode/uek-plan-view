@@ -1,6 +1,8 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {replaceStyle} from "@/components/style";
 import {ItemsSelector} from "@/components/ItemsSelector";
+import {parseStudyWeeks} from "@/components/custom/type";
+import {CustomTable} from "@/components/custom/CustomTable";
 
 interface Props {
     URL: string;
@@ -10,6 +12,7 @@ export const TableModified = (props: Props) => {
     const {URL} = props;
 
     const ref = useRef<HTMLIFrameElement>();
+    const [webpageFinalized, setWebpageFinalized] = useState('');
     const [webpage, setWebpage] = useState('');
     const [items, setItems] = useState<string[]>([]);
     const [selectedItems, setSelectedItems] = useState<string[]>([
@@ -38,7 +41,9 @@ export const TableModified = (props: Props) => {
     }, [URL]);
 
     useEffect(() => {
-        const blob = new Blob([FinalizeTable(webpage, selectedItems) as any], {type: 'text/html'});
+        const finalized = FinalizeTable(webpage, selectedItems) as string;
+        setWebpageFinalized(finalized);
+        const blob = new Blob([finalized as any], {type: 'text/html'});
         // @ts-ignore
         ref.current.src = window.URL.createObjectURL(blob);
     }, [selectedItems, webpage]);
@@ -48,6 +53,12 @@ export const TableModified = (props: Props) => {
         <div id='modify-canvas'/>
 
         <ItemsSelector items={items} selectedItems={selectedItems} setSelectedItems={setSelectedItems}/>
+
+        <CustomTable webpageFinalized={webpageFinalized}/>
+
+        <div className='my-20 border-b w-full text-center'>
+            Oryginalna tabelka:
+        </div>
 
         <Info/>
 
