@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {getPolishDayName, hoursSpaceInPolishFormat, Lesson, parseStudyWeeks, StudyWeek} from "@/components/custom/type";
 import clsx from "clsx";
-import {FaBuilding, FaExclamationTriangle, FaUser} from "react-icons/fa";
+import {FaBuilding, FaExclamationTriangle, FaExternalLinkAlt, FaUser} from "react-icons/fa";
 
 interface Props {
     webpageFinalized: string;
@@ -17,7 +17,7 @@ export const CustomTable = (props: Props) => {
         setStudyWeeks(parseStudyWeeks(webpageFinalized))
     }, [webpageFinalized]);
 
-    function Type({t}: {t: string}) {
+    function Type({t}: { t: string }) {
         return <div className={clsx(
             'flex justify-between m-1 p-1 text-xs border border-dashed',
             t.includes('wykład') && 'bg-purple-400 text-white',
@@ -33,6 +33,44 @@ export const CustomTable = (props: Props) => {
 
         const spaceTime = !prevLesson ? undefined : hoursSpaceInPolishFormat(prevLesson.hourEnd, lesson.hourStart);
 
+        function RoomText() {
+            function splitByPaw(str) {
+                return str.split("Paw").filter(Boolean).map((entry) => "Paw" + entry.trim());
+            }
+
+            function splitByLab(str) {
+                return str.split("lab.").filter(Boolean).map((entry) => entry.trim());
+            }
+
+            if (lesson.room.includes("grupę językową")) {
+                return <div className='text-gray-300'>
+                    {lesson.room}
+                </div>
+            }
+
+            if (lesson.room.includes("Paw")) {
+                return <>
+                    <FaBuilding/>
+                    <div className='flex flex-col'>
+                        {splitByPaw(lesson.room).map((p, i) => {
+                            const spByLab = splitByLab(p);
+                            const lab = spByLab[1];
+
+                            return <div key={p + i} className='flex flex-wrap gap-1'>
+                                {spByLab[0]}
+                                {lab && <div className='text-gray-400'>lab. {lab}</div>}
+                            </div>;
+                        })}
+                    </div>
+                </>
+            }
+
+            return <>
+                <FaBuilding/>
+                {lesson.room}
+            </>
+        }
+
         return (<>
             {spaceTime && <div className='bg-blue-200 text-xs p-1'>
                 przerwa: {spaceTime}
@@ -40,7 +78,9 @@ export const CustomTable = (props: Props) => {
             <div className={clsx('border-2 border-gray-500 bg-white', lesson.isRed && 'text-red-500 bg-red-50')}>
                 <div className='flex flex-col sm:flex-row items-center gap-2 border-b'>
                     <div className='flex items-center gap-1'>
-                        <div className='text-xs h-6 px-1 bg-gray-100 flex items-center text-gray-500'>{lesson.hourSpan}g.</div>
+                        <div
+                            className='text-xs h-6 px-1 bg-gray-100 flex items-center text-gray-500'>{lesson.hourSpan}g.
+                        </div>
                         <div className='text-gray-500'>{lesson.hourStart} - {lesson.hourEnd}</div>
                     </div>
                     <div className='text-xs font-semibold pr-2'>
@@ -48,9 +88,12 @@ export const CustomTable = (props: Props) => {
                     </div>
                 </div>
                 <div className='flex justify-between p-1 gap-2'>
-                    {lesson.room && <div className='flex items-center text-xs p-2 gap-2 border'>
-                        <FaBuilding/>
+                    {lesson.subjectLink && <a href={lesson.subjectLink} className='flex items-center text-xs p-2 px-4 gap-2 bg-blue-600 text-white border border-dashed'>
+                        <FaExternalLinkAlt/>
                         {lesson.room}
+                    </a>}
+                    {!lesson.subjectLink && lesson.room && <div className='flex items-center text-xs p-2 gap-2 border'>
+                        <RoomText/>
                     </div>}
                     {lesson.teacherLink && <div className='inline-block'>
                         <a href={lesson.teacherLink} target="_blank">
@@ -64,10 +107,11 @@ export const CustomTable = (props: Props) => {
 
                 <Type t={lesson.type}/>
 
-                {lesson.caution && <div className='flex items-center justify-center gap-1 bg-yellow-50 text-xs text-yellow-600 p-1'>
-                    <FaExclamationTriangle/>
-                    {lesson.caution}
-                </div>}
+                {lesson.caution &&
+                    <div className='flex items-center justify-center gap-1 bg-yellow-50 text-xs text-yellow-600 p-1'>
+                        <FaExclamationTriangle/>
+                        {lesson.caution}
+                    </div>}
             </div>
         </>);
     }
@@ -81,7 +125,8 @@ export const CustomTable = (props: Props) => {
                     <div className='text-xs font-normal'>{date}</div>
                 </div>
                 <div className='p-1 flex flex-col gap-2 bg-gray-50'>
-                    {lessons.map((l, li) => <StudyLesson lesson={l} key={li} prevLesson={li > 0 ? lessons[li - 1] : undefined} />)}
+                    {lessons.map((l, li) => <StudyLesson lesson={l} key={li}
+                                                         prevLesson={li > 0 ? lessons[li - 1] : undefined}/>)}
                 </div>
             </div>
         </div>
@@ -103,7 +148,8 @@ export const CustomTable = (props: Props) => {
                 </div>
             </div>
             <div className='flex gap-4 flex-wrap'>
-                {Object.keys(w.datesLessons).map(date => <StudyDay date={date} lessons={w.datesLessons[date]} key={date}/>)}
+                {Object.keys(w.datesLessons).map(date => <StudyDay date={date} lessons={w.datesLessons[date]}
+                                                                   key={date}/>)}
                 {!Object.keys(w.datesLessons).length && <div className='text-xs mx-8 my-14 text-gray-500'>
                     Brak zajęć w tym tygodniu
                 </div>}
@@ -112,7 +158,8 @@ export const CustomTable = (props: Props) => {
     }
 
     return <div className='w-full px-10 flex flex-col gap-4'>
-        {!showPast && <div className='border p-2 flex justify-center cursor-pointer font-semibold bg-gray-50' onClick={() => setShowPast(true)}>
+        {!showPast && <div className='border p-2 flex justify-center cursor-pointer font-semibold bg-gray-50'
+                           onClick={() => setShowPast(true)}>
             Pokaż przeszłe tygodnie
         </div>}
         {studyWeeks?.map((w, wi) => <StudyWeek w={w} key={w.name + wi + w.startDate + w.endDate}/>)}

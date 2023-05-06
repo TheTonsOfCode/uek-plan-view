@@ -14,6 +14,7 @@ export interface Lesson {
     hourEnd: string;
     hourSpan: string;
     subject: string;
+    subjectLink: string;
     type: string;
     teacherName: string;
     teacherLink: string;
@@ -119,6 +120,7 @@ export function parseStudyWeeks(data: string): StudyWeek[] {
         const hourEnd = cols[1].textContent.split(" ")[3];
         const hourSpan = cols[1].textContent.match(/\((\d+)g\.\)/)?.[1] ?? "";
         const subject = cols[2].textContent.trim();
+        const subjectLink = cols[5].querySelector("a")?.href ?? "";
         const type = cols[3].textContent.trim();
         const teacherName = cols[4].textContent.replace('👨‍🏫', '').trim();
         const teacherLink = cols[4].querySelector("a")?.href ?? "";
@@ -133,6 +135,7 @@ export function parseStudyWeeks(data: string): StudyWeek[] {
             hourEnd,
             hourSpan,
             subject,
+            subjectLink,
             type,
             teacherName,
             teacherLink,
